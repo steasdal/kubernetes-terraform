@@ -263,29 +263,47 @@ kubernetes-terraform/
 
 All external traffic enters the cluster via a secure, zero-trust Cloudflare Tunnel (`cloudflared`):
 
-```
-                        [ Internet Traffic ]
-                                 │
-                                 ▼
-                     [ Cloudflare Edge Network ]
-                    (*.teasdale.dev / CNAME proxy)
-                                 │
-                   (Encrypted QUIC/HTTP2 Tunnel)
-                                 │
-                                 ▼
-         [ cloudflared DaemonSet (1 replica per worker, HA) ]
-                   (Namespace: `cloudflare`)
-                                 │
-                 (Internal ClusterIP TCP:80)
-                                 │
-                                 ▼
-         [ Envoy Gateway Ingress (ClusterIP Service) ]
-               (Namespace: `envoy-gateway-system`)
-                                 │
-                        (Gateway API HTTPRoute)
-                                 │
-                                 ▼
-             [ Target Application Service & Pods ]
+```mermaid
+flowchart TD
+    client(["Internet Client"]) -->|"HTTPS: *.teasdale.dev"| cf["Cloudflare Edge Network\n(Proxied Wildcard CNAME)"]
+
+    subgraph k8s ["Talos Kubernetes Cluster (tk-cluster-02)"]
+        direction TB
+
+        subgraph cf_ns ["Namespace: cloudflare"]
+            subgraph ds ["cloudflared DaemonSet (3 Replicas)"]
+                pod1["cloudflared (w1 - PowerEdge03)"]
+                pod2["cloudflared (w2 - PowerEdge04)"]
+                pod3["cloudflared (w3 - PowerEdge05)"]
+            end
+        end
+
+        subgraph eg_ns ["Namespace: envoy-gateway-system"]
+            eg_svc["Service: envoy-gateway-ingress\n(ClusterIP:80)"]
+            eg_pod["Envoy Proxy Pods\n(Gateway: eg-gateway)"]
+        end
+
+        subgraph routing ["Gateway API Routing"]
+            route["HTTPRoute\n(e.g., gitlab.teasdale.dev)"]
+        end
+
+        subgraph backends ["Backend Destinations"]
+            in_cluster["In-Cluster Services & Pods\n(e.g., Nextcloud, Grafana)"]
+            ext_backend["Envoy Gateway Backend CRD\n(GitLab VM Target)"]
+        end
+    end
+
+    subgraph proxmox ["Proxmox VE (hz2)"]
+        gitlab_vm["GitLab VM 100\n(192.168.60.232:80)"]
+    end
+
+    cf ==>|"Encrypted QUIC / HTTP2 Tunnel"| ds
+    ds -->|"ClusterIP TCP:80"| eg_svc
+    eg_svc --> eg_pod
+    eg_pod --> route
+    route -->|"In-Cluster Routing"| in_cluster
+    route -->|"External Route"| ext_backend
+    ext_backend -.->|"Direct LAN (VLAN 60)"| gitlab_vm
 ```
 
 ### Exposing Services with Gateway API (`HTTPRoute`)
