@@ -12,7 +12,7 @@ resource "proxmox_virtual_environment_vm" "control_plane" {
   boot_order = ["scsi0", "ide2"]
 
   agent {
-    enabled = true
+    enabled = false
   }
 
   cpu {
@@ -70,7 +70,7 @@ resource "proxmox_virtual_environment_vm" "worker" {
   boot_order = ["scsi0", "ide2"]
 
   agent {
-    enabled = true
+    enabled = false
   }
 
   cpu {
