@@ -29,11 +29,13 @@ resource "proxmox_virtual_environment_vm" "control_plane" {
     iothread     = true
     discard      = "on"
     ssd          = true
+    file_format  = "raw"
     size         = each.value.disk_size
   }
 
   efi_disk {
     datastore_id = var.datastore_id
+    file_format  = "raw"
     type         = "4m"
   }
 
@@ -84,11 +86,13 @@ resource "proxmox_virtual_environment_vm" "worker" {
     iothread     = true
     discard      = "on"
     ssd          = true
+    file_format  = "raw"
     size         = each.value.disk_size
   }
 
   efi_disk {
     datastore_id = var.datastore_id
+    file_format  = "raw"
     type         = "4m"
   }
 
