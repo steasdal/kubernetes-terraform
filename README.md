@@ -138,15 +138,16 @@ terraform apply
 ## Interacting with the Cluster
 
 ### Using `kubectl`
-Point to the generated `kubeconfig`:
+You can use the included `./kc` helper script in the repository root, which automatically targets the project's `./kubeconfig`:
+```bash
+./kc get nodes -o wide
+./kc get pods -A
+```
+
+Or manually export `KUBECONFIG`:
 ```bash
 export KUBECONFIG=$(pwd)/kubeconfig
-
-# Check node status
 kubectl get nodes -o wide
-
-# Check cluster components
-kubectl get pods -A
 ```
 
 ### Using `talosctl`

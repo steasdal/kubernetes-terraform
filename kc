@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+KUBECONFIG_PATH="${SCRIPT_DIR}/kubeconfig"
+
+if [[ ! -f "${KUBECONFIG_PATH}" ]]; then
+  echo "Error: kubeconfig not found at ${KUBECONFIG_PATH}. Did you run 'terraform apply'?" >&2
+  exit 1
+fi
+
+export KUBECONFIG="${KUBECONFIG_PATH}"
+exec kubectl "$@"
