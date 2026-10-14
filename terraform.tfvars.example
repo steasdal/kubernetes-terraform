@@ -6,3 +6,9 @@ proxmox_endpoint = "https://192.168.1.30:8006/"
 # Generate on Proxmox host via:
 #   pveum user token add root@pam terraform --privsep 0
 proxmox_api_token = "root@pam!terraform=00000000-0000-0000-0000-000000000000"
+
+# Cloudflare Configuration
+cloudflare_api_token  = "cfut_..."
+cloudflare_account_id = "your_account_id"
+cloudflare_zone_id    = "your_zone_id"
+domain_name           = "teasdale.dev"

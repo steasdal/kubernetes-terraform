@@ -249,18 +249,72 @@ kubernetes-terraform/
 ├── proxmox_vms.tf          # Proxmox VM resource declarations for CPs and Workers
 ├── talos.tf                # Talos secrets, machine configs, bootstrap, and kubeconfig
 ├── envoy_gateway.tf        # Envoy Gateway Helm release & GatewayClass deployment
-├── outputs.tf              # Outputs node reservations and writes local credential files
+├── cloudflare_tunnel.tf    # Cloudflare Zero Trust tunnel, DNS records, & in-cluster cloudflared
+├── outputs.tf              # Outputs node reservations, tunnel CNAME, and writes local credential files
 ├── charts/                 # Local Helm charts
-│   └── envoy-gateway-config# Custom chart defining GatewayClass and ClusterIP EnvoyProxy
+│   └── envoy-gateway-config# Custom chart defining GatewayClass, ClusterIP EnvoyProxy, Gateway & Service
 ├── kc                      # Executable helper script wrapping kubectl with local kubeconfig
 └── README.md               # This documentation
 ```
 
 ---
 
+## Ingress & Cloudflare Zero Trust Tunnel Architecture
+
+All external traffic enters the cluster via a secure, zero-trust Cloudflare Tunnel (`cloudflared`):
+
+```
+                        [ Internet Traffic ]
+                                 │
+                                 ▼
+                     [ Cloudflare Edge Network ]
+                    (*.teasdale.dev / CNAME proxy)
+                                 │
+                   (Encrypted QUIC/HTTP2 Tunnel)
+                                 │
+                                 ▼
+         [ cloudflared Deployment (2 replicas, HA) ]
+                   (Namespace: `cloudflare`)
+                                 │
+                 (Internal ClusterIP TCP:80)
+                                 │
+                                 ▼
+         [ Envoy Gateway Ingress (ClusterIP Service) ]
+               (Namespace: `envoy-gateway-system`)
+                                 │
+                        (Gateway API HTTPRoute)
+                                 │
+                                 ▼
+             [ Target Application Service & Pods ]
+```
+
+### Exposing Services with Gateway API (`HTTPRoute`)
+
+Because the tunnel routes `*.teasdale.dev` to the in-cluster Envoy Gateway, exposing any new service simply requires creating an `HTTPRoute` resource in your application's namespace:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-app-route
+  namespace: my-namespace
+spec:
+  parentRefs:
+  - name: eg-gateway
+    namespace: envoy-gateway-system
+  hostnames:
+  - "my-app.teasdale.dev"
+  rules:
+  - backendRefs:
+    - name: my-app-service
+      port: 80
+```
+
+---
+
 ## Destroying / Tearing Down
 
-To decommission the entire cluster and delete the VMs from Proxmox:
+To decommission the entire cluster, remove the Cloudflare tunnel, DNS records, and delete the VMs from Proxmox:
 
 ```bash
 terraform destroy

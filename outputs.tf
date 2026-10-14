@@ -36,3 +36,13 @@ resource "local_file" "talosconfig" {
   filename        = "${path.module}/talosconfig"
   file_permission = "0600"
 }
+
+output "cloudflare_tunnel_id" {
+  description = "Cloudflare Tunnel ID"
+  value       = cloudflare_zero_trust_tunnel_cloudflared.k8s_tunnel.id
+}
+
+output "cloudflare_tunnel_cname" {
+  description = "Cloudflare Tunnel CNAME target"
+  value       = "${cloudflare_zero_trust_tunnel_cloudflared.k8s_tunnel.id}.cfargotunnel.com"
+}

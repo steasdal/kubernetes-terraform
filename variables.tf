@@ -153,3 +153,31 @@ variable "worker_nodes" {
     }
   }
 }
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API Token with Tunnel and DNS permissions"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloudflare_account_id" {
+  description = "Cloudflare Account ID"
+  type        = string
+}
+
+variable "cloudflare_zone_id" {
+  description = "Cloudflare Zone ID for the target domain"
+  type        = string
+}
+
+variable "domain_name" {
+  description = "Primary domain name for ingress"
+  type        = string
+  default     = "teasdale.dev"
+}
+
+variable "cloudflare_tunnel_name" {
+  description = "Name of the Cloudflare Tunnel"
+  type        = string
+  default     = "tk-cluster-tunnel"
+}
