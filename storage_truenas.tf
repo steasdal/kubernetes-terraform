@@ -174,7 +174,7 @@ resource "helm_release" "democratic_csi_nvmeof" {
         {
           name                 = "truenas-nvmeof"
           defaultClass         = false
-          reclaimPolicy        = "Delete"
+          reclaimPolicy        = "Retain"
           volumeBindingMode    = "Immediate"
           allowVolumeExpansion = true
           parameters = {
