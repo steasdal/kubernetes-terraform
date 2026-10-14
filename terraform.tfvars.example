@@ -1,0 +1,8 @@
+# Proxmox VE API Connection
+# Replace with the IP/FQDN of any node in your Proxmox cluster
+proxmox_endpoint = "https://192.168.1.30:8006/"
+
+# Proxmox API Token (Format: user@realm!tokenid=secret-uuid)
+# Generate on Proxmox host via:
+#   pveum user token add root@pam terraform --privsep 0
+proxmox_api_token = "root@pam!terraform=00000000-0000-0000-0000-000000000000"
