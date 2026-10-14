@@ -8,6 +8,11 @@ resource "helm_release" "envoy_gateway" {
   wait             = true
   timeout          = 300
 
+  set {
+    name  = "config.envoyGateway.extensionApis.enableBackend"
+    value = "true"
+  }
+
   depends_on = [
     talos_machine_bootstrap.this,
     talos_cluster_kubeconfig.this
