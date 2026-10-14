@@ -30,10 +30,6 @@ resource "talos_machine_configuration_apply" "controlplane" {
   config_patches = [
     yamlencode({
       machine = {
-        install = {
-          disk  = "/dev/sda"
-          image = "factory.talos.dev/installer/${var.talos_schematic_id}:${var.talos_version}"
-        }
         network = {
           interfaces = [
             {
@@ -50,9 +46,25 @@ resource "talos_machine_configuration_apply" "controlplane" {
               }
             }
           ]
-          nameservers = var.nameservers
         }
       }
+    }),
+    yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "UnattendedInstallConfig"
+      installer = {
+        image = "factory.talos.dev/installer/${var.talos_schematic_id}:${var.talos_version}"
+      }
+      provisioning = {
+        diskSelector = {
+          match = "disk.dev_path == \"/dev/sda\""
+        }
+      }
+    }),
+    yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "ResolverConfig"
+      nameservers = [for ns in var.nameservers : { address = ns }]
     })
   ]
 }
@@ -69,10 +81,6 @@ resource "talos_machine_configuration_apply" "worker" {
   config_patches = [
     yamlencode({
       machine = {
-        install = {
-          disk  = "/dev/sda"
-          image = "factory.talos.dev/installer/${var.talos_schematic_id}:${var.talos_version}"
-        }
         network = {
           interfaces = [
             {
@@ -86,9 +94,25 @@ resource "talos_machine_configuration_apply" "worker" {
               ]
             }
           ]
-          nameservers = var.nameservers
         }
       }
+    }),
+    yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "UnattendedInstallConfig"
+      installer = {
+        image = "factory.talos.dev/installer/${var.talos_schematic_id}:${var.talos_version}"
+      }
+      provisioning = {
+        diskSelector = {
+          match = "disk.dev_path == \"/dev/sda\""
+        }
+      }
+    }),
+    yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "ResolverConfig"
+      nameservers = [for ns in var.nameservers : { address = ns }]
     })
   ]
 }

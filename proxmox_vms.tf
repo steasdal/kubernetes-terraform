@@ -5,8 +5,9 @@ resource "proxmox_virtual_environment_vm" "control_plane" {
   node_name = each.value.node_name
   vm_id     = each.value.vm_id
 
-  bios    = "ovmf"
-  machine = "q35"
+  bios          = "ovmf"
+  machine       = "q35"
+  scsi_hardware = "virtio-scsi-single"
 
   boot_order = ["scsi0", "ide2"]
 
@@ -62,8 +63,9 @@ resource "proxmox_virtual_environment_vm" "worker" {
   node_name = each.value.node_name
   vm_id     = each.value.vm_id
 
-  bios    = "ovmf"
-  machine = "q35"
+  bios          = "ovmf"
+  machine       = "q35"
+  scsi_hardware = "virtio-scsi-single"
 
   boot_order = ["scsi0", "ide2"]
 
