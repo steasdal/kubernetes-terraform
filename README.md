@@ -250,6 +250,7 @@ kubernetes-terraform/
 ├── talos.tf                # Talos secrets, machine configs, bootstrap, and kubeconfig
 ├── envoy_gateway.tf        # Envoy Gateway Helm release & GatewayClass deployment
 ├── cloudflare_tunnel.tf    # Cloudflare Zero Trust tunnel, DNS records, & in-cluster cloudflared
+├── storage_truenas.tf      # TrueNAS SCALE Democratic-CSI (NFS & NVMe-oF/TCP StorageClasses)
 ├── outputs.tf              # Outputs node reservations, tunnel CNAME, and writes local credential files
 ├── charts/                 # Local Helm charts
 │   └── envoy-gateway-config# Custom chart defining GatewayClass, ClusterIP EnvoyProxy, Gateway & Service
@@ -284,17 +285,17 @@ flowchart TD
         end
 
         subgraph routing ["Gateway API Routing"]
-            route["HTTPRoute\n(e.g., gitlab.teasdale.dev)"]
+            route["HTTPRoute\n(e.g., app.teasdale.dev)"]
         end
 
         subgraph backends ["Backend Destinations"]
-            in_cluster["In-Cluster Services & Pods\n(e.g., Nextcloud, Grafana)"]
-            ext_backend["Envoy Gateway Backend CRD\n(GitLab VM Target)"]
+            in_cluster["In-Cluster Services & Pods\n(e.g., Web Apps, Databases, APIs)"]
+            ext_backend["Envoy Gateway Backend CRD\n(External LAN / VM Targets)"]
         end
     end
 
-    subgraph proxmox ["Proxmox VE (hz2)"]
-        gitlab_vm["GitLab VM 100\n(192.168.60.232:80)"]
+    subgraph lan ["External Homelab LAN (VLAN 60)"]
+        external_host["External Host / VM\n(Legacy or Non-K8s Services)"]
     end
 
     cf ==>|"Encrypted QUIC / HTTP2 Tunnel"| ds
@@ -303,7 +304,7 @@ flowchart TD
     eg_pod --> route
     route -->|"In-Cluster Routing"| in_cluster
     route -->|"External Route"| ext_backend
-    ext_backend -.->|"Direct LAN (VLAN 60)"| gitlab_vm
+    ext_backend -.->|"Direct LAN (VLAN 60)"| external_host
 ```
 
 ### Exposing Services with Gateway API (`HTTPRoute`)
@@ -332,20 +333,24 @@ spec:
 
 ## Persistent Storage (TrueNAS SCALE CSI)
 
-Cluster dynamic persistent volume provisioning is powered by [Democratic-CSI](https://github.com/democratic-csi/democratic-csi) connecting to TrueNAS SCALE via its REST API v2.
+Cluster dynamic persistent volume provisioning is powered by [Democratic-CSI](https://github.com/democratic-csi/democratic-csi) connecting to TrueNAS SCALE via its REST API v2. Both file-level shared storage (NFS) and raw high-speed block storage (NVMe-oF/TCP) are available:
 
-* **Default StorageClass:** `truenas-nfs` (NFSv4.1, `ReadWriteMany` / `ReadWriteOnce`)
-* **Volume SnapshotClass:** `truenas-nfs`
+| StorageClass | Protocol | Access Modes | Type | Default | Description |
+| :--- | :--- | :--- | :--- | :---: | :--- |
+| **`truenas-nfs`** | NFSv4.1 | `ReadWriteMany` (RWX), `ReadWriteOnce` (RWO) | Filesystem | Yes | Shared network filesystem backed by TrueNAS datasets. Best for general applications, shared data, and multi-replica workloads. |
+| **`truenas-nvmeof`** | NVMe-oF / TCP | `ReadWriteOnce` (RWO) | Block Device (`ext4`) | No | High-performance, low-latency block storage backed by TrueNAS ZVOLs over native NVMe-oF/TCP. Ideal for databases and I/O-intensive workloads. |
+
 * **ZFS Dataset Location:** `spinning-rusties/tk-cluster-02-k8s/vols`
-* **Features:** Automatic dataset creation, quota enforcement, deletion lifecycle, and snapshot support without requiring SSH keys or OS-level package managers on Talos nodes.
+* **ZFS Snapshot Location:** `spinning-rusties/tk-cluster-02-k8s/snaps`
+* **Features:** Automatic dataset/ZVOL provisioning and deletion, quota enforcement, online volume expansion, and native CSI snapshots.
 
-### Example PersistentVolumeClaim
+### Example: NFS PersistentVolumeClaim (`ReadWriteMany`)
 
 ```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: example-pvc
+  name: nfs-pvc
   namespace: default
 spec:
   accessModes:
@@ -354,6 +359,23 @@ spec:
   resources:
     requests:
       storage: 10Gi
+```
+
+### Example: NVMe-oF Block PersistentVolumeClaim (`ReadWriteOnce`)
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nvme-block-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: truenas-nvmeof
+  resources:
+    requests:
+      storage: 20Gi
 ```
 
 ---

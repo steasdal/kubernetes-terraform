@@ -124,3 +124,114 @@ resource "helm_release" "democratic_csi_nfs" {
     kubernetes_namespace.democratic_csi
   ]
 }
+
+resource "helm_release" "democratic_csi_nvmeof" {
+  name       = "zfs-nvmeof"
+  repository = "https://democratic-csi.github.io/charts"
+  chart      = "democratic-csi"
+  version    = "0.15.1"
+  namespace  = kubernetes_namespace.democratic_csi.metadata[0].name
+  wait       = true
+  timeout    = 300
+
+  values = [
+    yamlencode({
+      csiDriver = {
+        name           = "org.democratic-csi.nvmeof"
+        attachRequired = true
+      }
+
+      controller = {
+        driver = {
+          image = {
+            tag = "v1.9.5"
+          }
+        }
+        externalAttacher = {
+          enabled = true
+        }
+        externalProvisioner = {
+          enabled = true
+        }
+        externalResizer = {
+          enabled = true
+        }
+        externalSnapshotter = {
+          enabled = true
+        }
+      }
+
+      node = {
+        driver = {
+          image = {
+            tag = "v1.9.5"
+          }
+        }
+        kubeletHostPath = "/var/lib/kubelet"
+      }
+
+      storageClasses = [
+        {
+          name                 = "truenas-nvmeof"
+          defaultClass         = false
+          reclaimPolicy        = "Delete"
+          volumeBindingMode    = "Immediate"
+          allowVolumeExpansion = true
+          parameters = {
+            fsType = "ext4"
+          }
+          mountOptions = []
+        }
+      ]
+
+      volumeSnapshotClasses = [
+        {
+          name           = "truenas-nvmeof"
+          deletionPolicy = "Delete"
+          parameters = {
+            detachedSnapshots = "false"
+          }
+        }
+      ]
+
+      driver = {
+        config = {
+          driver      = "freenas-api-nvmeof"
+          instance_id = "tk-cluster-02-nvmeof"
+          httpConnection = {
+            protocol      = "https"
+            host          = var.truenas_host
+            port          = 443
+            apiKey        = var.truenas_api_key
+            allowInsecure = true
+            apiVersion    = 2
+          }
+          zfs = {
+            datasetParentName                  = var.truenas_dataset_parent
+            detachedSnapshotsDatasetParentName = var.truenas_snapshot_parent
+            zvolCompression                    = "lz4"
+            zvolEnableReservation              = false
+            zvolBlocksize                      = "16K"
+          }
+          nvmeof = {
+            transports = [
+              "tcp://${var.truenas_host}:4420"
+            ]
+            namePrefix = "csi-"
+            nameSuffix = "-tk2"
+            ports = [
+              1
+            ]
+            subsystemTemplate = {
+              allow_any_host = true
+            }
+          }
+        }
+      }
+    })
+  ]
+
+  depends_on = [
+    kubernetes_namespace.democratic_csi
+  ]
+}
