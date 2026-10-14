@@ -135,6 +135,55 @@ terraform apply
 
 ---
 
+## High Availability Virtual IP (`192.168.60.5`)
+
+In this cluster, clients (`kubectl`, `./kc`) and worker nodes do not connect to a specific control plane IP. Instead, all traffic routes through a single, highly available floating Virtual IP (**`192.168.60.5:6443`**).
+
+Talos Linux manages this natively at Layer-2 without requiring external load balancers (such as HAProxy, Keepalived, or F5):
+
+### How It Works: Gratuitous ARP & Leader Election
+
+```mermaid
+flowchart TD
+    subgraph Network["UniFi Gateway / Switch (VLAN 60)"]
+        ARP["ARP Cache: 192.168.60.5 -> cp1 MAC"]
+    end
+
+    subgraph ControlPlanes["Control Plane Nodes"]
+        CP1["cp1 (192.168.60.200)<br/><b>Active VIP Leader</b><br/>Binds 192.168.60.5 on ens18"]
+        CP2["cp2 (192.168.60.202)<br/>Standby"]
+        CP3["cp3 (192.168.60.204)<br/>Standby"]
+    end
+
+    ARP -->|Traffic to :6443| CP1
+    CP1 -.->|Talos Heartbeat / Health| CP2
+    CP2 -.->|Talos Heartbeat / Health| CP3
+    CP3 -.->|Talos Heartbeat / Health| CP1
+```
+
+1. **Shared Configuration:** Each control plane node declares the VIP under its primary network interface (`ens18`) in `talos.tf`:
+   ```yaml
+   machine:
+     network:
+       interfaces:
+         - interface: ens18
+           vip:
+             ip: 192.168.60.5
+   ```
+2. **Leader Election:** Talos control plane nodes maintain an internal heartbeat consensus. One node is elected the active VIP leader (e.g., `cp1`).
+3. **Gratuitous ARP (GARP):** The leader adds `192.168.60.5/24` to its `ens18` interface and broadcasts a Gratuitous ARP frame across VLAN 60 (*"192.168.60.5 is at MAC 52:54:00:60:02:00"*). All switches and the UniFi gateway update their ARP tables so packets for `192.168.60.5:6443` route directly to the active node.
+
+### Automatic Failover (Zero-Downtime HA)
+* If `cp1` crashes, reboots, or loses power, `cp2` and `cp3` detect the lost heartbeat within ~2–3 seconds.
+* A surviving node (e.g., `cp2`) is elected the new leader and immediately binds `192.168.60.5` to its `ens18` NIC.
+* It broadcasts a new Gratuitous ARP frame (*"192.168.60.5 is now at MAC 52:54:00:60:02:02"*).
+* Network traffic immediately redirects to `cp2` without manual intervention or DNS changes.
+
+> [!IMPORTANT]
+> **Why `ens18` matters:** In QEMU/Proxmox with VirtIO NICs, systemd predictable network interface naming designates the primary NIC as `ens18` (PCI bus 0, slot 18), **not** `eth0`. Binding the VIP to `ens18` ensures Talos attaches the daemon directly to the live physical interface.
+
+---
+
 ## Interacting with the Cluster
 
 ### Using `kubectl`
@@ -178,6 +227,7 @@ kubernetes-terraform/
 ├── proxmox_vms.tf          # Proxmox VM resource declarations for CPs and Workers
 ├── talos.tf                # Talos secrets, machine configs, bootstrap, and kubeconfig
 ├── outputs.tf              # Outputs node reservations and writes local credential files
+├── kc                      # Executable helper script wrapping kubectl with local kubeconfig
 └── README.md               # This documentation
 ```
 
