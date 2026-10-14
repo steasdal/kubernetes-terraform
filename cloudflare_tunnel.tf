@@ -71,7 +71,7 @@ resource "kubernetes_secret" "cloudflared_token" {
   type = "Opaque"
 }
 
-resource "kubernetes_deployment" "cloudflared" {
+resource "kubernetes_daemon_set_v1" "cloudflared" {
   metadata {
     name      = "cloudflared"
     namespace = kubernetes_namespace.cloudflare.metadata[0].name
@@ -81,8 +81,6 @@ resource "kubernetes_deployment" "cloudflared" {
   }
 
   spec {
-    replicas = 2
-
     selector {
       match_labels = {
         app = "cloudflared"

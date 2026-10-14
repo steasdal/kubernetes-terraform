@@ -273,7 +273,7 @@ All external traffic enters the cluster via a secure, zero-trust Cloudflare Tunn
                    (Encrypted QUIC/HTTP2 Tunnel)
                                  │
                                  ▼
-         [ cloudflared Deployment (2 replicas, HA) ]
+         [ cloudflared DaemonSet (1 replica per worker, HA) ]
                    (Namespace: `cloudflare`)
                                  │
                  (Internal ClusterIP TCP:80)
