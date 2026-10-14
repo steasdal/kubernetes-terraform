@@ -184,6 +184,28 @@ flowchart TD
 
 ---
 
+## Ingress & Gateway API (Envoy Gateway)
+
+The cluster is equipped with **Envoy Gateway** (`gateway.envoyproxy.io`) implementing the Kubernetes **Gateway API** (`gateway.networking.k8s.io`):
+
+* **Controller:** Deployed in namespace `envoy-gateway-system` via the official Helm chart (`oci://docker.io/envoyproxy/gateway-helm`).
+* **GatewayClass:** `eg` (Accepted and managed by `gateway.envoyproxy.io/gatewayclass-controller`).
+* **Service Type:** Configured with `type: ClusterIP` via an `EnvoyProxy` parameter resource (`eg-proxy-config`). This keeps the data plane entirely internal to the cluster network, perfectly tailored for in-cluster Cloudflare Tunnels (`cloudflared`) without requiring open node ports or a bare-metal LoadBalancer.
+
+### Checking Gateway Resources
+```bash
+# Check Envoy Gateway controller pod
+./kc get pods -n envoy-gateway-system
+
+# Verify the GatewayClass is Accepted
+./kc get gatewayclass -o wide
+
+# Check installed Gateway API CRDs
+./kc get crds | grep gateway
+```
+
+---
+
 ## Interacting with the Cluster
 
 ### Using `kubectl`
@@ -226,7 +248,10 @@ kubernetes-terraform/
 ├── terraform.tfvars        # Your actual secrets (DO NOT COMMIT)
 ├── proxmox_vms.tf          # Proxmox VM resource declarations for CPs and Workers
 ├── talos.tf                # Talos secrets, machine configs, bootstrap, and kubeconfig
+├── envoy_gateway.tf        # Envoy Gateway Helm release & GatewayClass deployment
 ├── outputs.tf              # Outputs node reservations and writes local credential files
+├── charts/                 # Local Helm charts
+│   └── envoy-gateway-config# Custom chart defining GatewayClass and ClusterIP EnvoyProxy
 ├── kc                      # Executable helper script wrapping kubectl with local kubeconfig
 └── README.md               # This documentation
 ```

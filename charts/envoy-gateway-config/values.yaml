@@ -1,0 +1,4 @@
+gatewayClassName: "eg"
+serviceType: "ClusterIP"
+controllerName: "gateway.envoyproxy.io/gatewayclass-controller"
+description: "Envoy GatewayClass with ClusterIP service type"
