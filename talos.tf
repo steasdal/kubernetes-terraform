@@ -33,7 +33,7 @@ resource "talos_machine_configuration_apply" "controlplane" {
         network = {
           interfaces = [
             {
-              interface = "eth0"
+              interface = "ens18"
               addresses = ["${each.value.ip}/24"]
               routes = [
                 {
@@ -84,7 +84,7 @@ resource "talos_machine_configuration_apply" "worker" {
         network = {
           interfaces = [
             {
-              interface = "eth0"
+              interface = "ens18"
               addresses = ["${each.value.ip}/24"]
               routes = [
                 {
@@ -129,7 +129,6 @@ resource "talos_cluster_kubeconfig" "this" {
 
   client_configuration = talos_machine_secrets.this.client_configuration
   node                 = var.control_plane_nodes["cp1"].ip
-  endpoint             = var.cluster_vip
 }
 
 data "talos_client_configuration" "this" {
