@@ -330,6 +330,34 @@ spec:
 
 ---
 
+## Persistent Storage (TrueNAS SCALE CSI)
+
+Cluster dynamic persistent volume provisioning is powered by [Democratic-CSI](https://github.com/democratic-csi/democratic-csi) connecting to TrueNAS SCALE via its REST API v2.
+
+* **Default StorageClass:** `truenas-nfs` (NFSv4.1, `ReadWriteMany` / `ReadWriteOnce`)
+* **Volume SnapshotClass:** `truenas-nfs`
+* **ZFS Dataset Location:** `spinning-rusties/tk-cluster-02-k8s/vols`
+* **Features:** Automatic dataset creation, quota enforcement, deletion lifecycle, and snapshot support without requiring SSH keys or OS-level package managers on Talos nodes.
+
+### Example PersistentVolumeClaim
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: example-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: truenas-nfs
+  resources:
+    requests:
+      storage: 10Gi
+```
+
+---
+
 ## Destroying / Tearing Down
 
 To decommission the entire cluster, remove the Cloudflare tunnel, DNS records, and delete the VMs from Proxmox:

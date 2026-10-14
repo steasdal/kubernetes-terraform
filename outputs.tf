@@ -7,20 +7,20 @@ output "unifi_dhcp_reservations" {
   description = "List of MAC addresses to add as Fixed IP reservations in UniFi"
   value = merge(
     { for k, v in var.control_plane_nodes : k => {
-      name        = k
-      ip          = v.ip
-      mac_address = v.mac_address
-      role        = "control-plane"
-      proxmox_node= v.node_name
-      vlan        = var.vlan_id
+      name         = k
+      ip           = v.ip
+      mac_address  = v.mac_address
+      role         = "control-plane"
+      proxmox_node = v.node_name
+      vlan         = var.vlan_id
     } },
     { for k, v in var.worker_nodes : k => {
-      name        = k
-      ip          = v.ip
-      mac_address = v.mac_address
-      role        = "worker"
-      proxmox_node= v.node_name
-      vlan        = var.vlan_id
+      name         = k
+      ip           = v.ip
+      mac_address  = v.mac_address
+      role         = "worker"
+      proxmox_node = v.node_name
+      vlan         = var.vlan_id
     } }
   )
 }

@@ -181,3 +181,27 @@ variable "cloudflare_tunnel_name" {
   type        = string
   default     = "tk-cluster-tunnel"
 }
+
+variable "truenas_host" {
+  description = "TrueNAS SCALE hostname or IP address"
+  type        = string
+  default     = "192.168.60.22"
+}
+
+variable "truenas_api_key" {
+  description = "TrueNAS API Key for authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "truenas_dataset_parent" {
+  description = "Parent dataset path for volume datasets (pool/path)"
+  type        = string
+  default     = "spinning-rusties/tk-cluster-02-k8s/vols"
+}
+
+variable "truenas_snapshot_parent" {
+  description = "Parent dataset path for detached snapshots (pool/path)"
+  type        = string
+  default     = "spinning-rusties/tk-cluster-02-k8s/snaps"
+}

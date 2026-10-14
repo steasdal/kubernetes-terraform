@@ -62,8 +62,8 @@ resource "talos_machine_configuration_apply" "controlplane" {
       }
     }),
     yamlencode({
-      apiVersion = "v1alpha1"
-      kind       = "ResolverConfig"
+      apiVersion  = "v1alpha1"
+      kind        = "ResolverConfig"
       nameservers = [for ns in var.nameservers : { address = ns }]
     })
   ]
@@ -110,8 +110,8 @@ resource "talos_machine_configuration_apply" "worker" {
       }
     }),
     yamlencode({
-      apiVersion = "v1alpha1"
-      kind       = "ResolverConfig"
+      apiVersion  = "v1alpha1"
+      kind        = "ResolverConfig"
       nameservers = [for ns in var.nameservers : { address = ns }]
     })
   ]

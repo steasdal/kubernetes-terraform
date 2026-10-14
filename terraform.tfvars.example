@@ -12,3 +12,9 @@ cloudflare_api_token  = "cfut_..."
 cloudflare_account_id = "your_account_id"
 cloudflare_zone_id    = "your_zone_id"
 domain_name           = "teasdale.dev"
+ 
+# TrueNAS Storage Configuration
+truenas_host            = "192.168.60.22"
+truenas_api_key         = "1-0000000000000000000000000000000000000000000000000000000000000000"
+truenas_dataset_parent  = "spinning-rusties/tk-cluster-02-k8s/vols"
+truenas_snapshot_parent = "spinning-rusties/tk-cluster-02-k8s/snaps"
