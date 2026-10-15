@@ -256,15 +256,16 @@ talosctl -n 192.168.60.200 containers -k
 kubernetes-terraform/
 ├── .gitignore              # Ignores .tfstate, tfvars, kubeconfig, talosconfig, .terraform/
 ├── .terraform.lock.hcl     # Pinned provider dependency versions & hashes (commit to git)
-├── versions.tf             # Provider requirements & Proxmox connection config
-├── variables.tf            # Default sizing, IP mappings, MACs, VLAN, and cluster parameters
-├── terraform.tfvars.example# Template for Proxmox credentials
+├── versions.tf             # Provider requirements & connection configs (Proxmox, Talos, K8s, Cloudflare, Flux)
+├── variables.tf            # Default sizing, IP mappings, MACs, VLAN, TrueNAS, and GitOps parameters
+├── terraform.tfvars.example# Template for Proxmox, Cloudflare, TrueNAS, and GitHub credentials
 ├── terraform.tfvars        # Your actual secrets (DO NOT COMMIT)
 ├── proxmox_vms.tf          # Proxmox VM resource declarations for CPs and Workers
 ├── talos.tf                # Talos secrets, machine configs, bootstrap, and kubeconfig
 ├── envoy_gateway.tf        # Envoy Gateway Helm release & GatewayClass deployment
 ├── cloudflare_tunnel.tf    # Cloudflare Zero Trust tunnel, DNS records, & in-cluster cloudflared
 ├── storage_truenas.tf      # TrueNAS SCALE Democratic-CSI (NFS & NVMe-oF/TCP StorageClasses)
+├── flux.tf                 # FluxCD GitOps bootstrap & GitHub deploy key configuration
 ├── outputs.tf              # Outputs node reservations, tunnel CNAME, and writes local credential files
 ├── charts/                 # Local Helm charts
 │   └── envoy-gateway-config# Custom chart defining GatewayClass, ClusterIP EnvoyProxy, Gateway & Service
