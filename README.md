@@ -63,6 +63,7 @@ The 6 MAC-to-IP reservations **must exist** in the UniFi Network application (**
 * [Terraform](https://developer.hashicorp.com/terraform/install) $\ge$ `1.5.0`
 * [talosctl](https://github.com/siderolabs/talos/releases) matching cluster release (e.g., `v1.14.2`)
 * [kubectl](https://kubernetes.io/docs/tasks/tools/)
+* [flux CLI](https://fluxcd.io/flux/installation/) (`brew install fluxcd/tap/flux`)
 
 ---
 
@@ -74,11 +75,24 @@ Copy `terraform.tfvars.example` to `terraform.tfvars`:
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-Edit `terraform.tfvars` with your Proxmox API credentials:
+Edit `terraform.tfvars` with your environment credentials:
 
 ```hcl
 proxmox_endpoint  = "https://192.168.1.30:8006/"
 proxmox_api_token = "root@pam!terraform=<YOUR_TOKEN_SECRET>"
+
+cloudflare_api_token  = "cfut_..."
+cloudflare_account_id = "<YOUR_ACCOUNT_ID>"
+cloudflare_zone_id    = "<YOUR_ZONE_ID>"
+domain_name           = "teasdale.dev"
+
+truenas_host          = "192.168.60.22"
+truenas_api_key       = "<YOUR_TRUENAS_API_KEY>"
+
+# GitHub Fine-Grained Token for FluxCD Bootstrap
+github_token          = "github_pat_..."
+github_org            = "steasdal"
+github_repository     = "gitops"
 ```
 
 > [!NOTE]
