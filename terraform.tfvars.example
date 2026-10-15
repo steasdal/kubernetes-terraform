@@ -18,3 +18,9 @@ truenas_host            = "192.168.60.22"
 truenas_api_key         = "1-0000000000000000000000000000000000000000000000000000000000000000"
 truenas_dataset_parent  = "spinning-rusties/tk-cluster-02-k8s/vols"
 truenas_snapshot_parent = "spinning-rusties/tk-cluster-02-k8s/snaps"
+
+# GitHub & FluxCD GitOps Configuration
+github_token      = "github_pat_..."
+github_org        = "steasdal"
+github_repository = "gitops"
+

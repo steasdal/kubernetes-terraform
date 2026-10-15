@@ -205,3 +205,28 @@ variable "truenas_snapshot_parent" {
   type        = string
   default     = "spinning-rusties/tk-cluster-02-k8s/snaps"
 }
+
+variable "github_token" {
+  description = "GitHub Personal Access Token for FluxCD bootstrap"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_org" {
+  description = "GitHub organization or user account owning the GitOps repo"
+  type        = string
+  default     = "steasdal"
+}
+
+variable "github_repository" {
+  description = "GitHub repository name for FluxCD bootstrap"
+  type        = string
+  default     = "gitops"
+}
+
+variable "flux_target_path" {
+  description = "Path within the GitOps repository for cluster definitions"
+  type        = string
+  default     = "clusters/tk-cluster-02"
+}
+

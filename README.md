@@ -380,6 +380,33 @@ spec:
 
 ---
 
+## FluxCD GitOps Bootstrap
+
+The cluster is automatically bootstrapped with [FluxCD](https://fluxcd.io/) (`v2.5.1`) during `terraform apply`:
+* **Target Git Repository:** `git@github.com:steasdal/gitops.git` (Private)
+* **Cluster Path:** `clusters/tk-cluster-02/` (runs side-by-side with other clusters like `clusters/tk-cluster/`)
+* **Deploy Key:** Managed via Terraform (`tls_private_key.flux` and `github_repository_deploy_key.flux`)
+* **Namespace:** `flux-system`
+
+### Operational Commands
+
+Check Flux synchronization status:
+```bash
+KUBECONFIG=./kubeconfig flux get all
+```
+
+Force an immediate git reconciliation:
+```bash
+KUBECONFIG=./kubeconfig flux reconcile source git flux-system
+```
+
+View running Flux controllers:
+```bash
+./kc get pods -n flux-system
+```
+
+---
+
 ## Destroying / Tearing Down
 
 To decommission the entire cluster, remove the Cloudflare tunnel, DNS records, and delete the VMs from Proxmox:
@@ -387,3 +414,4 @@ To decommission the entire cluster, remove the Cloudflare tunnel, DNS records, a
 ```bash
 terraform destroy
 ```
+
