@@ -129,7 +129,7 @@ variable "worker_nodes" {
       node_name   = "PowerEdge03"
       ip          = "192.168.60.206"
       mac_address = "52:54:00:60:02:06"
-      cores       = 4
+      cores       = 12
       memory      = 20480
       disk_size   = 60
     }
@@ -138,7 +138,7 @@ variable "worker_nodes" {
       node_name   = "PowerEdge04"
       ip          = "192.168.60.208"
       mac_address = "52:54:00:60:02:08"
-      cores       = 4
+      cores       = 12
       memory      = 20480
       disk_size   = 60
     }
@@ -147,12 +147,19 @@ variable "worker_nodes" {
       node_name   = "PowerEdge05"
       ip          = "192.168.60.210"
       mac_address = "52:54:00:60:02:10"
-      cores       = 4
+      cores       = 12
       memory      = 20480
       disk_size   = 60
     }
   }
 }
+
+variable "cpu_affinity" {
+  description = "CPU core affinity list for pinning VMs to CPU 1 (Socket 0 / NUMA node 0)"
+  type        = string
+  default     = "0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30"
+}
+
 
 variable "cloudflare_api_token" {
   description = "Cloudflare API Token with Tunnel and DNS permissions"

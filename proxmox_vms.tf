@@ -54,6 +54,12 @@ resource "proxmox_virtual_environment_vm" "control_plane" {
   operating_system {
     type = "l26"
   }
+
+  lifecycle {
+    ignore_changes = [
+      cpu[0].affinity,
+    ]
+  }
 }
 
 resource "proxmox_virtual_environment_vm" "worker" {
@@ -111,5 +117,11 @@ resource "proxmox_virtual_environment_vm" "worker" {
 
   operating_system {
     type = "l26"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      cpu[0].affinity,
+    ]
   }
 }
