@@ -14,7 +14,22 @@ resource "kubernetes_namespace" "democratic_csi" {
 
   depends_on = [
     talos_machine_bootstrap.this,
-    talos_cluster_kubeconfig.this
+    talos_cluster_kubeconfig.this,
+    terraform_data.wait_for_k8s_api
+  ]
+}
+
+resource "helm_release" "snapshot_controller" {
+  name       = "snapshot-controller"
+  repository = "https://democratic-csi.github.io/charts"
+  chart      = "snapshot-controller"
+  version    = "0.3.0"
+  namespace  = kubernetes_namespace.democratic_csi.metadata[0].name
+  wait       = true
+  timeout    = 300
+
+  depends_on = [
+    kubernetes_namespace.democratic_csi
   ]
 }
 
@@ -121,7 +136,8 @@ resource "helm_release" "democratic_csi_nfs" {
   ]
 
   depends_on = [
-    kubernetes_namespace.democratic_csi
+    kubernetes_namespace.democratic_csi,
+    helm_release.snapshot_controller
   ]
 }
 
@@ -232,6 +248,7 @@ resource "helm_release" "democratic_csi_nvmeof" {
   ]
 
   depends_on = [
-    kubernetes_namespace.democratic_csi
+    kubernetes_namespace.democratic_csi,
+    helm_release.snapshot_controller
   ]
 }

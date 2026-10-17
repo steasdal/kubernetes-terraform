@@ -16,7 +16,11 @@ resource "flux_bootstrap_git" "this" {
   depends_on = [
     talos_machine_bootstrap.this,
     talos_cluster_kubeconfig.this,
-    github_repository_deploy_key.flux
+    terraform_data.wait_for_k8s_api,
+    github_repository_deploy_key.flux,
+    helm_release.democratic_csi_nfs,
+    helm_release.democratic_csi_nvmeof,
+    helm_release.envoy_gateway_config
   ]
 
   path = var.flux_target_path

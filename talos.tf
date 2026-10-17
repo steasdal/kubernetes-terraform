@@ -125,7 +125,10 @@ resource "talos_machine_bootstrap" "this" {
 }
 
 resource "talos_cluster_kubeconfig" "this" {
-  depends_on = [talos_machine_bootstrap.this]
+  depends_on = [
+    talos_machine_bootstrap.this,
+    talos_machine_configuration_apply.worker
+  ]
 
   client_configuration = talos_machine_secrets.this.client_configuration
   node                 = var.control_plane_nodes["cp1"].ip
@@ -136,4 +139,30 @@ data "talos_client_configuration" "this" {
   client_configuration = talos_machine_secrets.this.client_configuration
   nodes                = [for k, v in var.control_plane_nodes : v.ip]
   endpoints            = [var.cluster_vip]
+}
+
+resource "terraform_data" "wait_for_k8s_api" {
+  depends_on = [
+    talos_machine_bootstrap.this,
+    talos_cluster_kubeconfig.this,
+    talos_machine_configuration_apply.controlplane,
+    talos_machine_configuration_apply.worker,
+    local_file.kubeconfig
+  ]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "Waiting for Kubernetes API server at https://${var.cluster_vip}:6443 and all 6 nodes to become Ready..."
+      for i in $(seq 1 90); do
+        READY_NODES=$(kubectl --kubeconfig "${path.module}/kubeconfig" get nodes --no-headers 2>/dev/null | awk '$2 == "Ready" {count++} END {print count+0}')
+        if [ "$READY_NODES" -ge 6 ]; then
+          echo "All $READY_NODES nodes are Ready!"
+          exit 0
+        fi
+        sleep 2
+      done
+      echo "Timed out waiting for Kubernetes nodes to become Ready"
+      exit 1
+    EOT
+  }
 }

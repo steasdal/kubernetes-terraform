@@ -54,7 +54,8 @@ resource "kubernetes_namespace" "cloudflare" {
 
   depends_on = [
     talos_machine_bootstrap.this,
-    talos_cluster_kubeconfig.this
+    talos_cluster_kubeconfig.this,
+    terraform_data.wait_for_k8s_api
   ]
 }
 
