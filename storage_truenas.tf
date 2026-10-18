@@ -76,7 +76,7 @@ resource "helm_release" "democratic_csi_nfs" {
         {
           name                 = "truenas-nfs"
           defaultClass         = true
-          reclaimPolicy        = "Delete"
+          reclaimPolicy        = "Retain"
           volumeBindingMode    = "Immediate"
           allowVolumeExpansion = true
           parameters = {
