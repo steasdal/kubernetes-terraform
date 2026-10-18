@@ -20,6 +20,7 @@ resource "flux_bootstrap_git" "this" {
     github_repository_deploy_key.flux,
     helm_release.democratic_csi_nfs,
     helm_release.democratic_csi_nvmeof,
+    terraform_data.truenas_static_volumes,
     helm_release.envoy_gateway_config
   ]
 
