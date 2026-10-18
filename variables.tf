@@ -88,7 +88,7 @@ variable "control_plane_nodes" {
       ip          = "192.168.60.200"
       mac_address = "52:54:00:60:02:00"
       cores       = 2
-      memory      = 4096
+      memory      = 6144
       disk_size   = 30
     }
     "cp2" = {
@@ -97,7 +97,7 @@ variable "control_plane_nodes" {
       ip          = "192.168.60.202"
       mac_address = "52:54:00:60:02:02"
       cores       = 2
-      memory      = 4096
+      memory      = 6144
       disk_size   = 30
     }
     "cp3" = {
@@ -106,7 +106,7 @@ variable "control_plane_nodes" {
       ip          = "192.168.60.204"
       mac_address = "52:54:00:60:02:04"
       cores       = 2
-      memory      = 4096
+      memory      = 6144
       disk_size   = 30
     }
   }
