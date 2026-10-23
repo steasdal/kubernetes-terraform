@@ -7,5 +7,10 @@ spec:
   provider:
     type: Kubernetes
     kubernetes:
+      {{- if .Values.envoyImage }}
+      envoyDeployment:
+        container:
+          image: {{ .Values.envoyImage | quote }}
+      {{- end }}
       envoyService:
         type: {{ .Values.serviceType }}
