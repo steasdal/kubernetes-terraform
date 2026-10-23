@@ -240,6 +240,7 @@ resource "helm_release" "democratic_csi_nvmeof" {
             ]
             subsystemTemplate = {
               allow_any_host = true
+              qid_max        = 128
             }
           }
         }
