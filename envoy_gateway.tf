@@ -13,6 +13,11 @@ resource "helm_release" "envoy_gateway" {
     value = "true"
   }
 
+  set {
+    name  = "global.images.envoyProxy.image"
+    value = "docker.io/envoyproxy/envoy:distroless-v1.40.1"
+  }
+
   depends_on = [
     talos_machine_bootstrap.this,
     talos_cluster_kubeconfig.this,
