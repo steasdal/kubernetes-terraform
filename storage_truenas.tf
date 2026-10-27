@@ -393,7 +393,7 @@ resource "terraform_data" "truenas_static_volumes" {
       }
 
       # Ensure all fixed-name TrueNAS volumes & shares exist:
-      ensure_nfs_volume    "owncloud-data"          536870912000  # 500 GiB
+      ensure_nfs_volume    "owncloud-data"         1649267441664  #  1.5 TiB
       ensure_nvmeof_volume "postgres-data"           21474836480  #  20 GiB
       ensure_nvmeof_volume "minio-data"              26843545600  #  25 GiB
       ensure_nvmeof_volume "redis-data"              10737418240  #  10 GiB
