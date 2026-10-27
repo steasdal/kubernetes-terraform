@@ -15,7 +15,7 @@ resource "helm_release" "envoy_gateway" {
 
   set {
     name  = "global.images.envoyProxy.image"
-    value = "docker.io/envoyproxy/envoy:distroless-v1.40.1"
+    value = "docker.io/envoyproxy/envoy:distroless-v1.40.2"
   }
 
   depends_on = [
