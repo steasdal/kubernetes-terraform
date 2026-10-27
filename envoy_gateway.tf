@@ -31,6 +31,11 @@ resource "helm_release" "envoy_gateway_config" {
   namespace = "envoy-gateway-system"
   wait      = true
 
+  set {
+    name  = "envoyImage"
+    value = "docker.io/envoyproxy/envoy:distroless-v1.40.2"
+  }
+
   depends_on = [
     helm_release.envoy_gateway
   ]
