@@ -98,7 +98,7 @@ resource "kubernetes_daemon_set_v1" "cloudflared" {
       spec {
         container {
           name  = "cloudflared"
-          image = "cloudflare/cloudflared:2026.10.5"
+          image = "cloudflare/cloudflared:2026.10.6"
           args = [
             "tunnel",
             "--no-autoupdate",
