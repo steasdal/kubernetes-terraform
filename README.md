@@ -25,7 +25,7 @@ The entire provisioning lifecycle—from creating virtual machines and configuri
 
 * **Physical Infrastructure:** 3x Dell PowerEdge R630 servers joined in a single Proxmox VE cluster (`proxmox-cluster`).
 
-![Homelab Hardware](/Users/sam/dev/kube/kubernetes-terraform/media/homelab_hardware.jpeg)
+![Homelab Hardware](media/homelab_hardware.jpeg)
 
 * **Virtual Topology:** 6 Virtual Machines (3 Control Planes + 3 Workers) evenly distributed across the physical servers (1 CP and 1 Worker per physical host).
 * **High Availability:** A 3-node `etcd` control plane allows any 1 physical server to fail without losing cluster quorum or causing Kubernetes API downtime.
