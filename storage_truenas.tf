@@ -398,6 +398,7 @@ resource "terraform_data" "truenas_static_volumes" {
       ensure_nvmeof_volume "minio-data"              26843545600  #  25 GiB
       ensure_nvmeof_volume "redis-data"              10737418240  #  10 GiB
       ensure_nvmeof_volume "victoria-metrics-data"   21474836480  #  20 GiB
+      ensure_nvmeof_volume "victoria-logs-data"      21474836480  #  20 GiB
 
       echo "==> All static TrueNAS volumes and shares verified!"
     EOT
