@@ -65,6 +65,11 @@ resource "talos_machine_configuration_apply" "controlplane" {
       apiVersion  = "v1alpha1"
       kind        = "ResolverConfig"
       nameservers = [for ns in var.nameservers : { address = ns }]
+    }),
+    yamlencode({
+      apiVersion                 = "v1alpha1"
+      kind                       = "KubeFlannelCNIConfig"
+      kubeNetworkPoliciesEnabled = true
     })
   ]
 }
